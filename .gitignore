@@ -3,9 +3,7 @@
 *.so
 *.dylib
 *.h
-
-# Go workspace files
-go.sum
+dist/
 
 # OS clutter
 .DS_Store

@@ -1,0 +1,22 @@
+package plugin
+
+import (
+	_ "embed"
+	"net/http"
+
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
+)
+
+//go:embed logo.png
+var logoPNG []byte
+
+func logoResponse() pluginapi.ManagementResponse {
+	return pluginapi.ManagementResponse{
+		StatusCode: http.StatusOK,
+		Headers: http.Header{
+			"Content-Type":  []string{"image/png"},
+			"Cache-Control": []string{"no-store"},
+		},
+		Body: logoPNG,
+	}
+}
