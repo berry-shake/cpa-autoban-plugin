@@ -28,7 +28,7 @@ const (
 	// stores without colliding.
 	PluginID = "autoban"
 
-	displayName = "Codex 429 Autoban"
+	displayName = "Autoban"
 	repository  = "https://github.com/berry-shake/cpa-autoban-plugin"
 
 	managementBase = "/v0/management/plugins/" + PluginID

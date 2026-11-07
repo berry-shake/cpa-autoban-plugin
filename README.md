@@ -1,4 +1,4 @@
-# CPA Codex 429 Autoban Plugin
+# CPA Autoban Plugin
 
 一个 CLIProxyAPI（CPA）插件：**Codex 凭证收到 429（限流）后自动移出号池，等对应限额窗口刷新后自动放回。**
 
@@ -72,7 +72,7 @@ plugins:
     - https://raw.githubusercontent.com/berry-shake/CLIProxyAPI-Plugins-Store/main/registry.json
 ```
 
-然后在管理面板的插件商店里找到 **Codex 429 Autoban**（ID `autoban`）安装，也可以直接调用管理接口：
+然后在管理面板的插件商店里找到 **Autoban**（ID `autoban`）安装，也可以直接调用管理接口：
 
 ```bash
 curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
@@ -91,7 +91,7 @@ plugins:
       enabled: true
       store:
         id: autoban
-        name: Codex 429 Autoban
+        name: Autoban
         author: ysxk / berry-shake
         version: 0.2.3
         release-tag: v0.2.3
@@ -135,7 +135,7 @@ plugins:
 
 ## 状态页
 
-在 CPA 管理面板的插件菜单里点 **Codex 429 Autoban** 打开，页面地址是：
+在 CPA 管理面板的插件菜单里点 **Autoban** 打开，页面地址是：
 
 ```text
 /v0/resource/plugins/autoban/status
