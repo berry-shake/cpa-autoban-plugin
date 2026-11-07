@@ -1,4 +1,4 @@
-// Command codex-429-autoban builds the CLIProxyAPI plugin that holds Codex
+// Command autoban builds the CLIProxyAPI plugin that holds Codex
 // credentials out of the pool after a 429 until the exhausted rate-limit
 // window refreshes. All behavior lives in internal/plugin; this file only
 // adapts the C ABI.
@@ -44,7 +44,7 @@ import (
 	"sync"
 	"unsafe"
 
-	pluginruntime "github.com/berry-shake/cpa-codex-429-autoban-plugin/internal/plugin"
+	pluginruntime "github.com/berry-shake/cpa-autoban-plugin/internal/plugin"
 	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginabi"
 )
 

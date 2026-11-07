@@ -1,4 +1,4 @@
-// Package plugin implements the codex-429-autoban plugin runtime.
+// Package plugin implements the autoban plugin runtime.
 //
 // Three capabilities are registered:
 //   - usage_plugin: on a Codex 429 it reads the upstream x-codex-* response
@@ -23,12 +23,13 @@ import (
 )
 
 const (
-	// PluginID is the store and runtime identifier. It is kept from the
-	// upstream ysxk/codex-429-autoban so existing config entries carry over.
-	PluginID = "codex-429-autoban"
+	// PluginID is the store and runtime identifier. It deliberately differs
+	// from the upstream ysxk/codex-429-autoban so both can be listed in plugin
+	// stores without colliding.
+	PluginID = "autoban"
 
 	displayName = "Codex 429 Autoban"
-	repository  = "https://github.com/berry-shake/cpa-codex-429-autoban-plugin"
+	repository  = "https://github.com/berry-shake/cpa-autoban-plugin"
 
 	managementBase = "/v0/management/plugins/" + PluginID
 	resourceBase   = "/v0/resource/plugins/" + PluginID
@@ -159,7 +160,7 @@ func (s *Service) registration(request []byte) rpcRegistration {
 func managementRoutes() managementRegistration {
 	return managementRegistration{
 		Routes: []routeDeclaration{
-			{Method: http.MethodGet, Path: bansPath, Description: "List Codex auths currently held out of the pool by codex-429-autoban."},
+			{Method: http.MethodGet, Path: bansPath, Description: "List Codex auths currently held out of the pool by autoban."},
 			{Method: http.MethodPost, Path: unbanPath, Description: `Put one Codex auth back into the pool. Body: {"auth_id":"..."}.`},
 			{Method: http.MethodPost, Path: unbanAllPath, Description: "Put every Codex auth back into the pool."},
 		},

@@ -133,7 +133,7 @@ func (s *Service) unban(req pluginapi.ManagementRequest) pluginapi.ManagementRes
 	removed := 0
 	if entry, ok := s.bans.clear(authID); ok {
 		removed = 1
-		slog.Info("codex-429-autoban: manually re-enabled credential",
+		slog.Info("autoban: manually re-enabled credential",
 			"auth_id", authID, "window", entry.Window, "reset_at", entry.ResetAt.Format(time.RFC3339))
 	}
 	return jsonResponse(http.StatusOK, unbanResponse{OK: true, AuthID: authID, Removed: removed, Status: s.status()})
@@ -142,7 +142,7 @@ func (s *Service) unban(req pluginapi.ManagementRequest) pluginapi.ManagementRes
 func (s *Service) unbanAll() pluginapi.ManagementResponse {
 	removed := s.bans.clearAll()
 	if removed > 0 {
-		slog.Info("codex-429-autoban: manually re-enabled all credentials", "removed", removed)
+		slog.Info("autoban: manually re-enabled all credentials", "removed", removed)
 	}
 	return jsonResponse(http.StatusOK, unbanResponse{OK: true, Removed: removed, Status: s.status()})
 }

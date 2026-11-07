@@ -35,7 +35,7 @@ func TestRegisterDeclaresCapabilitiesAndLogo(t *testing.T) {
 	if !reg.Capabilities.UsagePlugin || !reg.Capabilities.Scheduler || !reg.Capabilities.ManagementAPI {
 		t.Fatalf("capabilities = %+v", reg.Capabilities)
 	}
-	if reg.Metadata.Logo != "/v0/resource/plugins/codex-429-autoban/logo.png" {
+	if reg.Metadata.Logo != "/v0/resource/plugins/autoban/logo.png" {
 		t.Fatalf("logo = %q", reg.Metadata.Logo)
 	}
 	if reg.Metadata.Version != "1.2.3-test" || reg.Metadata.GitHubRepository != repository {

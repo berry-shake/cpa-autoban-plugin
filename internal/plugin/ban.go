@@ -74,7 +74,7 @@ func (s *BanStore) active(authID string, now time.Time) bool {
 		return true
 	}
 	delete(s.bans, authID)
-	slog.Info("codex-429-autoban: auto re-enabled credential",
+	slog.Info("autoban: auto re-enabled credential",
 		"auth_id", authID, "window", entry.Window, "reset_at", entry.ResetAt.Format(time.RFC3339))
 	return false
 }
@@ -87,7 +87,7 @@ func (s *BanStore) snapshot(now time.Time) map[string]banEntry {
 	for authID, entry := range s.bans {
 		if !now.Before(entry.ResetAt) {
 			delete(s.bans, authID)
-			slog.Info("codex-429-autoban: auto re-enabled credential",
+			slog.Info("autoban: auto re-enabled credential",
 				"auth_id", authID, "window", entry.Window, "reset_at", entry.ResetAt.Format(time.RFC3339))
 			continue
 		}
@@ -123,7 +123,7 @@ func (s *Service) handleUsage(raw []byte) {
 	}
 	var record pluginapi.UsageRecord
 	if errUnmarshal := json.Unmarshal(raw, &record); errUnmarshal != nil {
-		slog.Warn("codex-429-autoban: failed to decode usage record", "error", errUnmarshal)
+		slog.Warn("autoban: failed to decode usage record", "error", errUnmarshal)
 		return
 	}
 	if !strings.EqualFold(record.Provider, providerCodex) {
@@ -134,7 +134,7 @@ func (s *Service) handleUsage(raw []byte) {
 	}
 	authID := strings.TrimSpace(record.AuthID)
 	if authID == "" {
-		slog.Warn("codex-429-autoban: 429 received but AuthID is empty, cannot ban")
+		slog.Warn("autoban: 429 received but AuthID is empty, cannot ban")
 		return
 	}
 
@@ -142,11 +142,11 @@ func (s *Service) handleUsage(raw []byte) {
 	entry, ok := classifyAndBuildBan(record.ResponseHeaders)
 	if !ok {
 		entry = banEntry{ResetAt: now.Add(fallbackBan), Window: "5h (fallback, headers missing)"}
-		slog.Warn("codex-429-autoban: x-codex-* headers missing on 429, falling back to 5h ban", "auth_id", authID)
+		slog.Warn("autoban: x-codex-* headers missing on 429, falling back to 5h ban", "auth_id", authID)
 	}
 	entry.BannedAt = now
 	s.bans.set(authID, entry)
-	slog.Info("codex-429-autoban: banned credential after 429",
+	slog.Info("autoban: banned credential after 429",
 		"auth_id", authID, "window", entry.Window, "reset_at", entry.ResetAt.Format(time.RFC3339))
 }
 

@@ -89,8 +89,8 @@ jobs:
           # dots (e.g. "v0.1") on Windows. The plugin store installer also
           # requires the library inside the zip to be named after the
           # plugin ID.
-          LIBRARY="codex-429-autoban.${EXTENSION}"
-          ARCHIVE="codex-429-autoban_${VERSION}_${TARGET_GOOS}_${TARGET_GOARCH}.zip"
+          LIBRARY="autoban.${EXTENSION}"
+          ARCHIVE="autoban_${VERSION}_${TARGET_GOOS}_${TARGET_GOARCH}.zip"
           CGO_ENABLED=1 GOOS="${TARGET_GOOS}" GOARCH="${TARGET_GOARCH}" \
             go build -buildmode=c-shared -trimpath \
             -ldflags "-s -w -X main.pluginVersion=${VERSION}" \
@@ -102,7 +102,7 @@ jobs:
             -checksum "dist/${ARCHIVE}.sha256"
       - uses: actions/upload-artifact@v4
         with:
-          name: codex-429-autoban-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: autoban-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/*
           if-no-files-found: error
 
@@ -115,7 +115,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: codex-429-autoban-*
+          pattern: autoban-*
           path: dist
           merge-multiple: true
       - name: Publish GitHub release

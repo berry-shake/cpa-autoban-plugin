@@ -1,4 +1,4 @@
-module github.com/berry-shake/cpa-codex-429-autoban-plugin
+module github.com/berry-shake/cpa-autoban-plugin
 
 go 1.26.10
 

@@ -328,15 +328,15 @@
   </section>
 
   <footer>
-    <span data-i18n="footer.text">Powered by the codex-429-autoban plugin</span> ·
-    <a href="https://github.com/berry-shake/cpa-codex-429-autoban-plugin" target="_blank" rel="noopener noreferrer" data-i18n="footer.source">Source</a>
+    <span data-i18n="footer.text">Powered by the autoban plugin</span> ·
+    <a href="https://github.com/berry-shake/cpa-autoban-plugin" target="_blank" rel="noopener noreferrer" data-i18n="footer.source">Source</a>
   </footer>
 </main>
 <script>
 (() => {
   'use strict';
 
-  const LANG_KEY = 'cliproxy-codex-429-autoban-lang';
+  const LANG_KEY = 'cliproxy-autoban-lang';
   const messages = {
     en: {
       'title': 'Codex 429 Autoban · CLI Proxy API',
@@ -376,7 +376,7 @@
       'log.notBanned': 'Not in the ban list: {id}',
       'log.unbannedAll': 'Put back {count} credential(s).',
       'log.unbanFailed': 'Unban failed: {msg}',
-      'footer.text': 'Powered by the codex-429-autoban plugin',
+      'footer.text': 'Powered by the autoban plugin',
       'footer.source': 'Source',
     },
     zh: {
@@ -417,7 +417,7 @@
       'log.notBanned': '该凭证当前不在排除列表：{id}',
       'log.unbannedAll': '已加回 {count} 个凭证。',
       'log.unbanFailed': '操作失败：{msg}',
-      'footer.text': '由 codex-429-autoban 插件驱动',
+      'footer.text': '由 autoban 插件驱动',
       'footer.source': '源代码',
     },
   };
@@ -474,7 +474,7 @@
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyPanelTheme);
   }
 
-  const API_BASE = '/v0/management/plugins/codex-429-autoban';
+  const API_BASE = '/v0/management/plugins/autoban';
   const REFRESH_MS = 30000;
 
   // The upstream page kept the management key in plain localStorage under

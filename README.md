@@ -9,9 +9,9 @@
 - 补上插件 logo，CPA 管理面板侧边栏和插件列表都会显示；
 - 状态页重写：从 CPA 管理面板里打开时，直接复用面板记住的管理密钥，不用每次手动填；
 - 管理密钥不再以明文存进 `localStorage`，旧版本留下的 `codex429AutobanManagementKey` 会在打开页面时清掉；
-- 发布产物按 CPA 插件商店的规范打包（`codex-429-autoban_<version>_<goos>_<goarch>.zip` + `checksums.txt`）。
+- 发布产物按 CPA 插件商店的规范打包（`autoban_<version>_<goos>_<goarch>.zip` + `checksums.txt`）。
 
-插件 ID 保持 `codex-429-autoban` 不变，原有的 `plugins.configs.codex-429-autoban` 配置可以直接沿用。
+插件 ID 从上游的 `codex-429-autoban` 改成了 `autoban`，和官方商店里的上游条目不会撞 ID。从上游版本迁移的步骤见[下文](#从上游-codex-429-autoban-迁移)。
 
 ## 它做什么
 
@@ -51,6 +51,8 @@ CPA 插件没有定时器钩子，所以解禁是"惰性"的：每次 CPA 选凭
 - **全部凭证被封**：同样返回 `Handled: false`，交给 CPA 原生的冷却、故障转移和报错处理；
 - **部分凭证被封**：插件只在健康凭证中最高优先级的那一档里挑选。请求带有会话标识时，按加权哈希固定到同一个健康凭证上（保持会话粘性）；没有会话标识时，用平滑加权轮询分摊负载。
 
+> **注意**：CPA 每次选凭证只调用**优先级最高**的那一个 scheduler 插件；它返回 `Handled: false` 时直接走内置路由，不会再轮到优先级更低的 scheduler 插件。所以如果同时启用了其他带 scheduler 能力的插件（比如 access-guard），而本插件的 `priority` 比它低，那么只有"429 后记录封禁"这一步会执行，选凭证时并不会跳过被封的凭证。
+
 ## 环境要求
 
 - CLIProxyAPI v8（已在 v8.0.58 上验证），且开启了动态插件支持
@@ -70,15 +72,13 @@ plugins:
     - https://raw.githubusercontent.com/berry-shake/CLIProxyAPI-Plugins-Store/main/registry.json
 ```
 
-然后在管理面板的插件商店里找到 **Codex 429 Autoban** 安装。
-
-官方商店里也有一个同 ID 的 ysxk 上游版本。两个源同时存在时，通过管理接口安装需要带上 `source_id` 指明用哪个源，否则会返回 409：
+然后在管理面板的插件商店里找到 **Codex 429 Autoban**（ID `autoban`）安装，也可以直接调用管理接口：
 
 ```bash
 curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"version":"0.2.3","source_id":"<berry-shake 商店源的 source_id>"}' \
-  http://127.0.0.1:8317/v0/management/plugin-store/codex-429-autoban/install
+  -d '{"version":"0.2.3"}' \
+  http://127.0.0.1:8317/v0/management/plugin-store/autoban/install
 ```
 
 安装后 CPA 会在 `config.yaml` 里写入类似这样的配置：
@@ -87,30 +87,30 @@ curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
 plugins:
   enabled: true
   configs:
-    codex-429-autoban:
+    autoban:
       enabled: true
       store:
-        id: codex-429-autoban
+        id: autoban
         name: Codex 429 Autoban
         author: ysxk / berry-shake
         version: 0.2.3
         release-tag: v0.2.3
-        repository: https://github.com/berry-shake/cpa-codex-429-autoban-plugin
+        repository: https://github.com/berry-shake/cpa-autoban-plugin
         install:
           type: github-release
 ```
 
 ### 手动安装
 
-1. 从 Release 下载对应平台的 zip，解压出 `codex-429-autoban.<so|dylib|dll>`。
+1. 从 Release 下载对应平台的 zip，解压出 `autoban.<so|dylib|dll>`。
 2. 放进对应平台的插件目录，例如：
 
    ```text
-   plugins/linux/amd64/codex-429-autoban.so
-   plugins/linux/arm64/codex-429-autoban.so
-   plugins/darwin/amd64/codex-429-autoban.dylib
-   plugins/darwin/arm64/codex-429-autoban.dylib
-   plugins/windows/amd64/codex-429-autoban.dll
+   plugins/linux/amd64/autoban.so
+   plugins/linux/arm64/autoban.so
+   plugins/darwin/amd64/autoban.dylib
+   plugins/darwin/arm64/autoban.dylib
+   plugins/windows/amd64/autoban.dll
    ```
 
 3. 在 `config.yaml` 里启用：
@@ -119,7 +119,7 @@ plugins:
    plugins:
      enabled: true
      configs:
-       codex-429-autoban:
+       autoban:
          enabled: true
    ```
 
@@ -127,28 +127,34 @@ plugins:
 
 插件没有自己的配置项。
 
+### 从上游 codex-429-autoban 迁移
+
+两者 ID 不同，CPA 会把它们当成两个插件。装好本插件后，在管理面板里停用或卸载上游的 `codex-429-autoban`，或者把 `plugins.configs.codex-429-autoban.enabled` 改成 `false`。不要两个同时启用：它们各自维护一份封禁列表，都会参与选凭证。
+
+封禁状态只在内存里，迁移后不会带过来。之前被封的凭证再次收到 429 时会被重新封禁。
+
 ## 状态页
 
 在 CPA 管理面板的插件菜单里点 **Codex 429 Autoban** 打开，页面地址是：
 
 ```text
-/v0/resource/plugins/codex-429-autoban/status
+/v0/resource/plugins/autoban/status
 ```
 
 - 从管理面板里打开时，页面会复用面板"记住密码"保存的管理密钥（官方面板和 CPAMP 的存储格式都支持）。只使用为当前站点保存的密钥，也不会往面板存储里写回任何内容。
 - 直接打开页面、或者保存的密钥被宿主拒绝时，页面会让你输入管理密钥。手动输入的密钥只保存在页面内存里，刷新后需要重新输入。
 - 页面列出当前被封禁的凭证、封禁窗口、封禁时间、解禁时间和剩余时长，每 30 秒自动刷新一次（页面在后台时暂停）。
 - 每一行都可以单独"放回号池"；"全部放回"需要在 4 秒内再点一次确认。
-- 支持 English / 中文，默认跟随浏览器语言，可以在右上角切换，选择记在 `localStorage` 的 `cliproxy-codex-429-autoban-lang` 里。
+- 支持 English / 中文，默认跟随浏览器语言，可以在右上角切换，选择记在 `localStorage` 的 `cliproxy-autoban-lang` 里。
 
 ## 管理接口
 
 ```text
-GET  /v0/resource/plugins/codex-429-autoban/status          状态页外壳，无需鉴权，不含数据
-GET  /v0/resource/plugins/codex-429-autoban/logo.png        插件 logo，无需鉴权
-GET  /v0/management/plugins/codex-429-autoban/bans          需要管理密钥
-POST /v0/management/plugins/codex-429-autoban/unban         需要管理密钥
-POST /v0/management/plugins/codex-429-autoban/unban-all     需要管理密钥
+GET  /v0/resource/plugins/autoban/status          状态页外壳，无需鉴权，不含数据
+GET  /v0/resource/plugins/autoban/logo.png        插件 logo，无需鉴权
+GET  /v0/management/plugins/autoban/bans          需要管理密钥
+POST /v0/management/plugins/autoban/unban         需要管理密钥
+POST /v0/management/plugins/autoban/unban-all     需要管理密钥
 ```
 
 `/v0/management` 路由由 CPA 宿主先校验管理密钥（以及远程管理和 IP 封禁规则），通过后才转发给插件。缺少密钥或密钥错误时，宿主直接返回 401/403。
@@ -156,24 +162,24 @@ POST /v0/management/plugins/codex-429-autoban/unban-all     需要管理密钥
 ```bash
 # 查看当前被插件移出号池的凭证
 curl -H "Authorization: Bearer $MANAGEMENT_KEY" \
-  http://127.0.0.1:8317/v0/management/plugins/codex-429-autoban/bans
+  http://127.0.0.1:8317/v0/management/plugins/autoban/bans
 
 # 把单个凭证放回号池（也可以用查询参数 ?auth_id=...）
 curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
   -H "Content-Type: application/json" \
   -d '{"auth_id":"<AUTH_ID>"}' \
-  http://127.0.0.1:8317/v0/management/plugins/codex-429-autoban/unban
+  http://127.0.0.1:8317/v0/management/plugins/autoban/unban
 
 # 清空插件的全部封禁
 curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
-  http://127.0.0.1:8317/v0/management/plugins/codex-429-autoban/unban-all
+  http://127.0.0.1:8317/v0/management/plugins/autoban/unban-all
 ```
 
 `bans` 返回示例：
 
 ```json
 {
-  "plugin": "codex-429-autoban",
+  "plugin": "autoban",
   "version": "0.2.3",
   "now": "2026-11-07T14:21:36Z",
   "count": 1,
@@ -199,7 +205,7 @@ curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
 
 - 封禁状态只保存在内存里，CPA 重启后清空（CPA 自身的冷却状态在重启后也会清空，两者一致）。在管理面板里停用再启用插件不会清空封禁状态。
 - 手动放回号池只修改插件的内存状态，不会改动 Codex 侧额度，也不会修改 CPA 凭证文件。
-- 封禁和解禁都会写日志，关键字是 `codex-429-autoban:`。
+- 封禁和解禁都会写日志，关键字是 `autoban:`。
 
 ## 本地构建
 
@@ -207,7 +213,7 @@ curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
 go test ./...
 CGO_ENABLED=1 go build -buildmode=c-shared \
   -ldflags '-X main.pluginVersion=0.2.3-dev' \
-  -o codex-429-autoban-v0.2.3-dev.dylib .
+  -o autoban-v0.2.3-dev.dylib .
 ```
 
 Linux 用 `.so`，Windows 用 `.dll`。c-shared 构建会顺带生成一个 C 头文件，宿主用不到它。
