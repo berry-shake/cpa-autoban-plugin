@@ -77,7 +77,7 @@ plugins:
 ```bash
 curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"version":"0.2.3"}' \
+  -d '{"version":"0.2.5"}' \
   http://127.0.0.1:8317/v0/management/plugin-store/autoban/install
 ```
 
@@ -93,8 +93,8 @@ plugins:
         id: autoban
         name: Autoban
         author: ysxk / berry-shake
-        version: 0.2.3
-        release-tag: v0.2.3
+        version: 0.2.5
+        release-tag: v0.2.5
         repository: https://github.com/berry-shake/cpa-autoban-plugin
         install:
           type: github-release
@@ -180,7 +180,7 @@ curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
 ```json
 {
   "plugin": "autoban",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "now": "2026-11-07T14:21:36Z",
   "count": 1,
   "bans": [
@@ -212,8 +212,8 @@ curl -X POST -H "Authorization: Bearer $MANAGEMENT_KEY" \
 ```bash
 go test ./...
 CGO_ENABLED=1 go build -buildmode=c-shared \
-  -ldflags '-X main.pluginVersion=0.2.3-dev' \
-  -o autoban-v0.2.3-dev.dylib .
+  -ldflags '-X main.pluginVersion=0.2.5-dev' \
+  -o autoban-v0.2.5-dev.dylib .
 ```
 
 Linux 用 `.so`，Windows 用 `.dll`。c-shared 构建会顺带生成一个 C 头文件，宿主用不到它。
